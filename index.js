@@ -1,41 +1,42 @@
+#!/usr/bin/env node
+
 const fs = require("fs");
-const json = require("./data.json");
 const path = require("path");
+const { program } = require("commander");
+const { version } = require("./package.json");
+const reducers = require("./reducers");
+const chokidar = require("chokidar");
 
-const snapshot = Object.assign({}, json);
-
-const isObject = (x) =>
-  typeof x === "object" && x !== null && !Array.isArray(x);
-
-const reduce = (
-  hash,
-  reducer = (a, b) => a + b,
-  reducerName = "_total",
-  initialValue = 0,
-  clean = (res) => Number(res.toFixed(2))
-) => {
-  const reducerResult = Object.keys(hash).reduce(
-    (prevValue, currentKey) => {
-      if (currentKey === reducerName) return prevValue;
-      let a = prevValue;
-      let b = hash[currentKey];
-      if (isObject(b)) {
-        hash[currentKey] = reduce(hash[currentKey]);
-        b = hash[currentKey][reducerName];
+program
+  .version(version)
+  .arguments("<pathToJson>")
+  .description(
+    "Watches for changes and adds calculated elements to each hashmap in the json file at <path>"
+  )
+  .option(
+    "-r, --reducer <reducer>",
+    `One of the available reducer computations, e.g. [${Object.keys(
+      reducers
+    ).join(", ")}]. (default: sum)`
+  ).action((pathToJson, { reducer = 'sum' }) => {
+    const filePath = path.resolve(process.cwd(), pathToJson);
+    const watcher = chokidar.watch(filePath);
+    watcher.on('change', () => {
+      let json;
+      try {
+        json = JSON.parse(fs.readFileSync(filePath));
+      } catch (err) {
+        console.log("Invalid JSON, please fix and save again.")
+        return
       }
-      return reducer(a, b);
-    },
-    initialValue
-  );
-  hash[reducerName] = clean(reducerResult);
-  return hash;
-};
+      const snapshot = Object.assign({}, json);
+      const result = reducers[reducer](json);
+      if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify(result, null, 2)
+      );
+    });    
+  });
 
-const result = reduce(json);
-
-if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
-
-fs.writeFileSync(
-  path.resolve(__dirname, "./data.json"),
-  JSON.stringify(result, null, 2)
-);
+  program.parse(process.argv);

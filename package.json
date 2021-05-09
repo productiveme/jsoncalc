@@ -1,8 +1,14 @@
 {
-  "name": "jsoncompute",
+  "name": "jsoncalc",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "jsoncalc": "./index.js"
+  },
+  "publishConfig": {
+    "registry": "http://nexus.productive.me/repository/npm"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "once": "node index.js",
@@ -12,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "watch": "^1.0.2"
+    "chokidar": "^3.5.1",
+    "commander": "^7.2.0"
   }
 }
