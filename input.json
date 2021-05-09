@@ -1,0 +1,16 @@
+{
+  "Home": 100,
+  "Car": 50,
+  "Groceries": {
+    "Food": 100,
+    "Sweets": 200,
+    "Other": 45.5,
+    "Surprises": {
+      "Test": 123,
+      "Test again": 342,
+      "_total": 465
+    },
+    "_total": 810.5
+  },
+  "_total": 960.5
+}
