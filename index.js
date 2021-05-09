@@ -1,25 +1,41 @@
-const fs = require('fs');
-const json = require('./input.json');
-const path = require('path');
+const fs = require("fs");
+const json = require("./data.json");
+const path = require("path");
 
+const snapshot = Object.assign({}, json);
 
-const isObject = x => typeof x === 'object' && x !== null && !Array.isArray(x);
+const isObject = (x) =>
+  typeof x === "object" && x !== null && !Array.isArray(x);
 
-const compute = (hash, computation = (a,b) => a + b, computationName = '_total', initialValue = 0) => {
-  const computationResult = Object.keys(hash).reduce((computedValue,currentKey) => {
-    if (currentKey === computationName) return computedValue;
-    let a = computedValue;
-    let b = hash[currentKey];
-    if(isObject(b)) {
-      hash[currentKey] = compute(hash[currentKey]);
-      b = hash[currentKey][computationName];
-    }
-    return computation(a,b);
-  }, initialValue);
-  hash[computationName] = computationResult;
+const reduce = (
+  hash,
+  reducer = (a, b) => a + b,
+  reducerName = "_total",
+  initialValue = 0,
+  clean = (res) => Number(res.toFixed(2))
+) => {
+  const reducerResult = Object.keys(hash).reduce(
+    (prevValue, currentKey) => {
+      if (currentKey === reducerName) return prevValue;
+      let a = prevValue;
+      let b = hash[currentKey];
+      if (isObject(b)) {
+        hash[currentKey] = reduce(hash[currentKey]);
+        b = hash[currentKey][reducerName];
+      }
+      return reducer(a, b);
+    },
+    initialValue
+  );
+  hash[reducerName] = clean(reducerResult);
   return hash;
-}
+};
 
-const result = compute(json);
+const result = reduce(json);
 
-fs.writeFileSync(path.resolve(__dirname, './input.json'), JSON.stringify(result,null,2));
+if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
+
+fs.writeFileSync(
+  path.resolve(__dirname, "./data.json"),
+  JSON.stringify(result, null, 2)
+);
