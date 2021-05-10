@@ -20,6 +20,7 @@ program
     ).join(", ")}]. (default: sum)`
   ).action((pathToJson, { reducer = 'sum' }) => {
     const filePath = path.resolve(process.cwd(), pathToJson);
+    console.log(`Watching for changes in ${pathToJson} ...`);
     const watcher = chokidar.watch(filePath);
     watcher.on('change', () => {
       let json;
