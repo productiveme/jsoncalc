@@ -24,6 +24,9 @@ const reduce = ({
       });
       b = hash[currentKey][`${REDUCER_PREFIX}${reducerName}`];
     }
+    if (Array.isArray(b)) {
+      b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+    }
     return reducer(a, b, hash);
   }, initialValue);
   hash[`${REDUCER_PREFIX}${reducerName}`] = clean(reducerResult);
