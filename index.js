@@ -15,7 +15,7 @@ program
   )
   .option(
     "-r, --reducer <reducer>",
-    `One of the available reducer computations, e.g. [${Object.keys(
+    `One or more (comma seperated) of the available reducer computations, e.g. [${Object.keys(
       reducers
     ).join(", ")}]. (default: sum)`
   ).action((pathToJson, { reducer = 'sum' }) => {
@@ -31,7 +31,9 @@ program
         return
       }
       const snapshot = Object.assign({}, json);
-      const result = reducers[reducer](json);
+      const result = reducer.split(',').reduce((prev, cur) => {
+        return reducers[cur](prev);
+      }, json);
       if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
       fs.writeFileSync(
         filePath,
