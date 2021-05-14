@@ -38,10 +38,8 @@ const sum = (hash) =>
     hash,
     reducerName: "total",
     initialValue: 0,
-    reducer: (a, b) => 
-      a + b,
-    clean: (res) => 
-      Number(res.toFixed(2)),
+    reducer: (a, b) => a + b,
+    clean: (res) => Number(res.toFixed(2)),
   });
 
 const count = (hash) =>
@@ -65,10 +63,34 @@ const avg = (hash) =>
     clean: (res) => Number(res.toFixed(3)),
   });
 
+const yep = (hash) =>
+  reduce({
+    hash,
+    reducerName: "yep",
+    initialValue: 0,
+    reducer(a, b) {
+      return a + (b ? 1 : 0);
+    },
+    clean: (res) => res,
+  });
+
+const nope = (hash) =>
+  reduce({
+    hash,
+    reducerName: "nope",
+    initialValue: 0,
+    reducer(a, b) {
+      return a + (b ? 0 : 1);
+    },
+    clean: (res) => res,
+  });
+
 const reducers = {
   sum,
   count,
   avg,
+  yep,
+  nope,
 };
 
 module.exports = reducers;
