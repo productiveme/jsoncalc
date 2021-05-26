@@ -15,7 +15,7 @@ program
   )
   .option(
     "-r, --reducer <reducer>",
-    `One or more (comma seperated) of the available reducer computations, e.g. [${Object.keys(
+    `One or more (comma seperated) of the available reducer computations: [${Object.keys(
       reducers
     ).join(", ")}]. (default: sum)`
   ).action((pathToJson, { reducer = 'sum' }) => {
