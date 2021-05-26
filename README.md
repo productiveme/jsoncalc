@@ -8,6 +8,8 @@ A utility to watch a json file and run calculations recursively.
 npm install --global jsoncalc
 ```
 
+![](sample/jsoncalc-vscode.gif)
+
 ### Usage
 
 ```bash
@@ -19,7 +21,7 @@ jsoncalc budget.json
 ```text
 Usage: jsoncalc [options] <pathToJson>
 
-Watches for changes and adds calculated elements to each hashmap in the json file at <path>
+Watches for changes and adds calculated elements to each hashmap in the json file at <pathToJson>
 
 Options:
   -V, --version            output the version number

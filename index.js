@@ -11,7 +11,7 @@ program
   .version(version)
   .arguments("<pathToJson>")
   .description(
-    "Watches for changes and adds calculated elements to each hashmap in the json file at <path>"
+    "Watches for changes and adds calculated elements to each hashmap in the json file at <pathToJson>"
   )
   .option(
     "-r, --reducer <reducer>",
