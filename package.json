@@ -1,19 +1,26 @@
 {
   "name": "jsoncalc",
   "version": "1.0.5",
-  "description": "",
+  "description": "A utility to watch a json file and run calculations recursively.",
   "main": "index.js",
   "bin": {
     "jsoncalc": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/productiveme/jsoncalc.git"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "once": "node index.js",
     "start": "watch 'node index.js' ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["json", "calculate", "recursive"],
+  "author": "Jaco Swarts",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/productiveme/jsoncalc/issues"
+  },
   "dependencies": {
     "chokidar": "^3.5.1",
     "commander": "^7.2.0"
