@@ -25,6 +25,6 @@ Watches for changes and adds calculated elements to each hashmap in the json fil
 
 Options:
   -V, --version            output the version number
-  -r, --reducer <reducer>  One or more (comma seperated) of the available reducer computations, e.g. [sum, count, avg, yep, nope]. (default: sum)
+  -r, --reducer <reducer>  One or more (comma seperated) of the available reducer computations: [sum, count, avg, yep, nope]. (default: sum)
   -h, --help               display help for command
 ```
