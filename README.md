@@ -1,3 +1,5 @@
+![Lines](https://img.shields.io/badge/Coverage-Unknown%25-brightgreen.svg)
+
 # jsoncalc
 
 A utility to watch a json file and run calculations recursively.
