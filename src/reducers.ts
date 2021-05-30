@@ -12,7 +12,7 @@ type ReduceOptions = {
 };
 
 const reduce = ({
-  hash,
+  hash = {},
   reducerName = '',
   reducer = (prev: any, cur: any) => prev,
   initialValue = 0,
@@ -93,12 +93,10 @@ const nope = (hash: any) =>
     clean: (res: any) => res,
   });
 
-const _reducers = {
-  sum,
-  count,
-  avg,
-  yep,
-  nope,
+export const reducers = {
+  sum: sum,
+  count: count,
+  avg: avg,
+  yep: yep,
+  nope: nope,
 };
-
-module.exports = _reducers;
