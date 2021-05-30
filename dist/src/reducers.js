@@ -1,7 +1,9 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reducers = void 0;
 const REDUCER_PREFIX = '_';
 const isObject = (x) => typeof x === 'object' && x !== null && !Array.isArray(x);
-const reduce = ({ hash, reducerName = '', reducer = (prev, cur) => prev, initialValue = 0, clean = (res) => res, }) => {
+const reduce = ({ hash = {}, reducerName = '', reducer = (prev, cur) => prev, initialValue = 0, clean = (res) => res, }) => {
     const reducerResult = Object.keys(hash).reduce((prevValue, currentKey) => {
         if (currentKey.startsWith(REDUCER_PREFIX))
             return prevValue;
@@ -69,12 +71,11 @@ const nope = (hash) => reduce({
     },
     clean: (res) => res,
 });
-const _reducers = {
-    sum,
-    count,
-    avg,
-    yep,
-    nope,
+exports.reducers = {
+    sum: sum,
+    count: count,
+    avg: avg,
+    yep: yep,
+    nope: nope,
 };
-module.exports = _reducers;
 //# sourceMappingURL=reducers.js.map

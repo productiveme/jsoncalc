@@ -2,9 +2,9 @@
   "name": "jsoncalc",
   "version": "1.1.2",
   "description": "A utility to watch a json file and run calculations recursively.",
-  "main": "./dist/index.js",
+  "main": ".//src/index.js",
   "bin": {
-    "jsoncalc": "./dist/index.js"
+    "jsoncalc": "./dist/src/index.js"
   },
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "jest",
-    "coverage": "jest --coverage --passWithNoTests; istanbul-badges-readme",
+    "coverage": "jest --coverage --passWithNoTests; istanbul-badges-readme --silent",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/productiveme/jsoncalc/issues"
   },
-  "typings": "dist/index",
+  "typings": "dist/src/index",
   "dependencies": {
     "chokidar": "^3.5.1",
     "commander": "^7.2.0"
