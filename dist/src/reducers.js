@@ -9,6 +9,9 @@ const reduce = ({ hash = {}, reducerName = '', reducer = (prev) => prev, initial
             return prevValue;
         const a = prevValue;
         let b = hash[currentKey];
+        if (Array.isArray(b)) {
+            b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+        }
         if (isObject(b)) {
             hash[currentKey] = reduce({
                 hash: hash[currentKey],
@@ -17,10 +20,8 @@ const reduce = ({ hash = {}, reducerName = '', reducer = (prev) => prev, initial
                 initialValue,
                 clean,
             });
-            b = hash[currentKey][`${REDUCER_PREFIX}${reducerName}`];
-        }
-        if (Array.isArray(b)) {
-            b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+            // using an array to indicate the results are from a child object
+            b = [hash[currentKey][`${REDUCER_PREFIX}${reducerName}`]];
         }
         return reducer(a, b, hash);
     }, initialValue);
@@ -31,20 +32,24 @@ const sum = (hash) => reduce({
     hash,
     reducerName: 'total',
     initialValue: 0,
-    reducer: (a, b) => a + b,
+    reducer(a, b) {
+        return Array.isArray(b) ? a + b[0] : a + b;
+    },
     clean: (res) => Number(res.toFixed(2)),
 });
 const count = (hash) => reduce({
     hash,
     reducerName: 'count',
     initialValue: 0,
-    reducer: (a) => a + 1,
+    reducer(a, b) {
+        return Array.isArray(b) ? a + b[0] : a + 1;
+    },
 });
 const avg = (hash) => reduce({
     hash: count(sum(hash)),
     reducerName: 'avg',
     initialValue: 0,
-    reducer: (a, b, h) => {
+    reducer(a, b, h) {
         if (Number.isNaN(h._total))
             return a;
         if (Number.isNaN(h._count))
@@ -58,7 +63,7 @@ const yep = (hash) => reduce({
     reducerName: 'yep',
     initialValue: 0,
     reducer(a, b) {
-        return a + (b ? 1 : 0);
+        return Array.isArray(b) ? a + b[0] : a + (b ? 1 : 0);
     },
     clean: (res) => res,
 });
@@ -67,7 +72,7 @@ const nope = (hash) => reduce({
     reducerName: 'nope',
     initialValue: 0,
     reducer(a, b) {
-        return a + (b ? 0 : 1);
+        return Array.isArray(b) ? a + b[0] : a + (b ? 0 : 1);
     },
     clean: (res) => res,
 });

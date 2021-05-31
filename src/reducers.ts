@@ -23,6 +23,9 @@ const reduce = ({
       if (currentKey.startsWith(REDUCER_PREFIX)) return prevValue;
       const a = prevValue;
       let b: unknown = hash[currentKey as keyof typeof hash];
+      if (Array.isArray(b)) {
+        b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+      }
       if (isObject(b)) {
         (hash as any)[currentKey] = reduce({
           hash: hash[currentKey as keyof typeof hash],
@@ -31,10 +34,8 @@ const reduce = ({
           initialValue,
           clean,
         });
-        b = (hash as any)[currentKey][`${REDUCER_PREFIX}${reducerName}`];
-      }
-      if (Array.isArray(b)) {
-        b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+        // using an array to indicate the results are from a child object
+        b = [(hash as any)[currentKey][`${REDUCER_PREFIX}${reducerName}`]];
       }
       return reducer(a, b, hash);
     },
@@ -44,29 +45,33 @@ const reduce = ({
   return hash;
 };
 
-const sum = (hash: any) =>
+const sum = (hash: Object) =>
   reduce({
     hash,
     reducerName: 'total',
     initialValue: 0,
-    reducer: (a: any, b: any) => a + b,
+    reducer(a: number, b: number | [number]) {
+      return Array.isArray(b) ? a + b[0] : a + b;
+    },
     clean: (res: number) => Number(res.toFixed(2)),
   });
 
-const count = (hash: any) =>
+const count = (hash: Object) =>
   reduce({
     hash,
     reducerName: 'count',
     initialValue: 0,
-    reducer: (a: number) => a + 1,
+    reducer(a: number, b: number | [number]) {
+      return Array.isArray(b) ? a + b[0] : a + 1;
+    },
   });
 
-const avg = (hash: any) =>
+const avg = (hash: Object) =>
   reduce({
     hash: count(sum(hash)),
     reducerName: 'avg',
     initialValue: 0,
-    reducer: (a: any, b: any, h: {_total: unknown; _count: unknown}) => {
+    reducer(a: unknown, b: unknown, h: {_total: unknown; _count: unknown}) {
       if (Number.isNaN(h._total)) return a;
       if (Number.isNaN(h._count)) return a;
       return Number(h._total) / Number(h._count);
@@ -74,26 +79,26 @@ const avg = (hash: any) =>
     clean: (res: number) => Number(res.toFixed(3)),
   });
 
-const yep = (hash: any) =>
+const yep = (hash: Object) =>
   reduce({
     hash,
     reducerName: 'yep',
     initialValue: 0,
-    reducer(a: number, b: any) {
-      return a + (b ? 1 : 0);
+    reducer(a: number, b: unknown | [number]) {
+      return Array.isArray(b) ? a + b[0] : a + (b ? 1 : 0);
     },
-    clean: (res: any) => res,
+    clean: (res: unknown) => res,
   });
 
-const nope = (hash: any) =>
+const nope = (hash: Object) =>
   reduce({
     hash,
     reducerName: 'nope',
     initialValue: 0,
-    reducer(a: number, b: any) {
-      return a + (b ? 0 : 1);
+    reducer(a: number, b: unknown | [number]) {
+      return Array.isArray(b) ? a + b[0] : a + (b ? 0 : 1);
     },
-    clean: (res: any) => res,
+    clean: (res: unknown) => res,
   });
 
 export const reducers = {

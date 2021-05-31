@@ -1,7 +1,7 @@
 export declare const reducers: {
-    sum: (hash: any) => Object;
-    count: (hash: any) => Object;
-    avg: (hash: any) => Object;
-    yep: (hash: any) => Object;
-    nope: (hash: any) => Object;
+    sum: (hash: Object) => Object;
+    count: (hash: Object) => Object;
+    avg: (hash: Object) => Object;
+    yep: (hash: Object) => Object;
+    nope: (hash: Object) => Object;
 };
