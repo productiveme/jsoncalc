@@ -39,8 +39,14 @@ given(
         test: {
           a: 1,
           b: 2,
-          c: 3,
+          //TODO: fix the issue with arrays
+          c: 3, //[1, 2],
           d: 0,
+          e: {
+            e1: 1,
+            //TODO: fix the issue with strings
+            e2: 0, //'',
+          },
         },
       })
     );
@@ -55,29 +61,29 @@ given(
       });
       then('a sum calculation should be applied', () => {
         expect(calculated).toHaveProperty('_total');
-        expect((calculated as any)._total).toBe(6);
+        expect((calculated as any)._total).toBe(7);
       });
     });
     const sample = {
       sum: {
         field: '_total',
-        result: 6,
+        result: 7,
       },
       count: {
         field: '_count',
-        result: 4,
+        result: 6,
       },
       avg: {
         field: '_avg',
-        result: 1.5,
+        result: 1.167,
       },
       yep: {
         field: '_yep',
-        result: 3,
+        result: 4,
       },
       nope: {
         field: '_nope',
-        result: 1,
+        result: 2,
       },
     };
     when.each(Object.keys(sample))('%s reducer is specified', (_ignore, i) => {

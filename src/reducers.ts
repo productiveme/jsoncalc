@@ -11,6 +11,9 @@ type ReduceOptions = {
   clean?: Function;
 };
 
+//TODO: A reducer should specify how to determine if a value is usable or not, and if its recursable or not
+//TODO: A reducer should be called differently when its the reduced value from a recursed child
+
 const reduce = ({
   hash = {},
   reducerName = '',
