@@ -4,40 +4,43 @@ const isObject = (x: unknown) =>
   typeof x === 'object' && x !== null && !Array.isArray(x);
 
 type ReduceOptions = {
-  hash: any;
+  hash?: Object;
   reducerName: string;
   reducer: Function;
-  initialValue: any;
+  initialValue: unknown;
   clean?: Function;
 };
 
 const reduce = ({
   hash = {},
   reducerName = '',
-  reducer = (prev: any, cur: any) => prev,
+  reducer = (prev: unknown) => prev,
   initialValue = 0,
-  clean = (res: any) => res,
+  clean = (res: unknown) => res,
 }: ReduceOptions) => {
-  const reducerResult = Object.keys(hash).reduce((prevValue, currentKey) => {
-    if (currentKey.startsWith(REDUCER_PREFIX)) return prevValue;
-    const a = prevValue;
-    let b = hash[currentKey];
-    if (isObject(b)) {
-      hash[currentKey] = reduce({
-        hash: hash[currentKey],
-        reducerName,
-        reducer,
-        initialValue,
-        clean,
-      });
-      b = hash[currentKey][`${REDUCER_PREFIX}${reducerName}`];
-    }
-    if (Array.isArray(b)) {
-      b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
-    }
-    return reducer(a, b, hash);
-  }, initialValue);
-  hash[`${REDUCER_PREFIX}${reducerName}`] = clean(reducerResult);
+  const reducerResult = Object.keys(hash).reduce(
+    (prevValue, currentKey: string) => {
+      if (currentKey.startsWith(REDUCER_PREFIX)) return prevValue;
+      const a = prevValue;
+      let b: unknown = hash[currentKey as keyof typeof hash];
+      if (isObject(b)) {
+        (hash as any)[currentKey] = reduce({
+          hash: hash[currentKey as keyof typeof hash],
+          reducerName,
+          reducer,
+          initialValue,
+          clean,
+        });
+        b = (hash as any)[currentKey][`${REDUCER_PREFIX}${reducerName}`];
+      }
+      if (Array.isArray(b)) {
+        b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
+      }
+      return reducer(a, b, hash);
+    },
+    initialValue
+  );
+  (hash as any)[`${REDUCER_PREFIX}${reducerName}`] = clean(reducerResult);
   return hash;
 };
 

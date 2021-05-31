@@ -12,7 +12,7 @@
     },
     "scripts": {
         "test": "jest",
-        "coverage": "jest --coverage --passWithNoTests; istanbul-badges-readme",
+        "coverage": "jest --coverage --passWithNoTests; istanbul-badges-readme --silent",
         "lint": "gts lint",
         "clean": "gts clean",
         "compile": "tsc",
