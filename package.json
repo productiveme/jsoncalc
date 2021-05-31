@@ -1,6 +1,6 @@
 {
   "name": "jsoncalc",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A utility to watch a json file and run calculations recursively.",
   "main": "./dist/src/index.js",
   "bin": {

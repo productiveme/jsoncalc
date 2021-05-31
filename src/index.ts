@@ -3,7 +3,7 @@
 import {program} from 'commander';
 import {version} from '../package.json';
 import {reducers} from './reducers';
-import {jsoncalc} from './jsoncalc';
+import {watch} from './jsoncalc';
 
 program
   .version(version)
@@ -17,6 +17,6 @@ program
       reducers
     ).join(', ')}]. (default: sum)`
   )
-  .action(jsoncalc);
+  .action(watch);
 
 program.parse(process.argv);
