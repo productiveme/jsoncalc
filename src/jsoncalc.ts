@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
+import YAML from 'yaml';
 import {reducers} from './reducers';
 
 type ApplyChangesOptions = {
@@ -15,10 +16,18 @@ type JsonCalcOptions = {
   applyChanges?: ApplyChangesCallback;
 };
 
+export const loadFile = (filePath: string) => {
+  if (/(\.json)|(\.yml)$/i.test(filePath)) {
+    return /\.json$/i.test(filePath) ? loadJson(filePath) : loadYaml(filePath);
+  }
+  console.warn('Only JSON and YAML files are supported');
+  return;
+};
+
 export const loadJson = (filePath: string) => {
   let json;
   try {
-    json = JSON.parse(fs.readFileSync(filePath));
+    json = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (err) {
     console.warn('Invalid JSON, please fix and save again.');
     return;
@@ -26,18 +35,30 @@ export const loadJson = (filePath: string) => {
   return json;
 };
 
+export const loadYaml = (filePath: string) => {
+  let yml;
+  try {
+    // console.log(filecontents);
+    yml = YAML.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (err) {
+    console.warn(err, 'Invalid YAML, please fix and save again.');
+    return;
+  }
+  return yml;
+};
+
 export const jsoncalc = (
   filePath: string,
   {reducer = 'sum', applyChanges = () => {}}: JsonCalcOptions
 ) => {
-  const json = loadJson(filePath);
-  const snapshot = Object.assign({}, json);
+  const hash = loadFile(filePath);
+  const snapshot = Object.assign({}, hash);
 
   const result = reducer
     .split(',')
     .reduce(
       (prev, cur: string) => reducers[cur as keyof typeof reducers](prev),
-      json
+      hash
     );
   if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
   applyChanges({filePath, result});
@@ -49,7 +70,12 @@ export const watch = (pathToJson: string, {reducer = 'sum'}) => {
   const opts = {
     reducer,
     applyChanges: ({filePath, result}: ApplyChangesOptions) => {
-      fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+      if (/\.json$/i.test(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+      }
+      if (/\.yml$/i.test(filePath)) {
+        fs.writeFileSync(filePath, YAML.stringify(result));
+      }
     },
   };
   jsoncalc(filePath, opts);
