@@ -1,4 +1,4 @@
-![Lines](https://img.shields.io/badge/Coverage-86.15%25-yellow.svg)
+![Lines](https://img.shields.io/badge/Coverage-85.37%25-yellow.svg)
 
 # jsoncalc
 
