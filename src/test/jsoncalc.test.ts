@@ -40,6 +40,12 @@ given(
         expect(console.warn).toBeCalled();
       });
     });
+    when('invalid YAML is supplied', () => {
+      parseYaml('x');
+      then('a warning should be reported', () => {
+        expect(console.warn).toBeCalled();
+      });
+    });
     when('valid YAML is supplied', () => {
       const contents = YAML.stringify({
         a: 1,

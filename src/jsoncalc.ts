@@ -29,7 +29,11 @@ export const parseJson = (contents: string) => {
   try {
     json = JSON.parse(contents);
   } catch (err) {
-    console.warn('Invalid JSON, please fix and save again.');
+    console.warn(
+      (err as Error).message,
+      '\n',
+      'Invalid JSON, please fix and save again.'
+    );
     return null;
   }
   return json;
@@ -38,10 +42,13 @@ export const parseJson = (contents: string) => {
 export const parseYaml = (contents: string) => {
   let yml;
   try {
-    // console.log(filecontents);
     yml = YAML.parse(contents);
   } catch (err) {
-    console.warn(err, 'Invalid YAML, please fix and save again.');
+    console.warn(
+      (err as Error).message,
+      '\n',
+      'Invalid YAML, please fix and save again.'
+    );
     return null;
   }
   return yml;
