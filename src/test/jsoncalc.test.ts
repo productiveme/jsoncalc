@@ -1,31 +1,59 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {given} from '@geeebe/jest-bdd';
-import {jsoncalc} from '../jsoncalc';
+import YAML from 'yaml';
+import {jsoncalc, parseJson, parseYaml} from '../jsoncalc';
 import fs from 'fs';
 
 jest.mock('fs');
 const spy = jest.spyOn(console, 'warn').mockImplementation();
 
-afterAll(() => {
-  spy.mockRestore();
-});
+afterAll(spy.mockRestore);
 
 given(
-  'loadJson',
+  'loadFile',
   () => {},
   (when, then) => {
     when('no path is supplied', () => {
-      jest.clearAllMocks();
+      spy.mockReset();
       jsoncalc('', {});
       then('a warning should be reported', () => {
         expect(console.warn).toBeCalled();
       });
     });
     when('an invalid path is supplied', () => {
-      jest.clearAllMocks();
+      spy.mockReset();
       jsoncalc('xxx', {});
       then('a warning should be reported', () => {
         expect(console.warn).toBeCalled();
+      });
+    });
+  }
+);
+
+given(
+  'parseJSON or -YAML',
+  () => {},
+  (when, then) => {
+    when('invalid JSON is supplied', () => {
+      parseJson('x');
+      then('a warning should be reported', () => {
+        expect(console.warn).toBeCalled();
+      });
+    });
+    when('valid YAML is supplied', () => {
+      const contents = YAML.stringify({
+        a: 1,
+        b: 2,
+        c: {
+          ca: 3.1,
+          cb: [4, 5, 6],
+        },
+      });
+      const yml = parseYaml(contents);
+      then('an object should be parsed', () => {
+        expect(yml).not.toBeNull();
+        expect(yml).toHaveProperty('a');
+        expect(yml.c).toHaveProperty('cb');
       });
     });
   }

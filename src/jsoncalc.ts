@@ -18,31 +18,31 @@ type JsonCalcOptions = {
 
 export const loadFile = (filePath: string) => {
   if (/(\.json)|(\.yml)$/i.test(filePath)) {
-    return /\.json$/i.test(filePath) ? loadJson(filePath) : loadYaml(filePath);
+    return fs.readFileSync(filePath, 'utf8');
   }
   console.warn('Only JSON and YAML files are supported');
   return;
 };
 
-export const loadJson = (filePath: string) => {
+export const parseJson = (contents: string) => {
   let json;
   try {
-    json = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    json = JSON.parse(contents);
   } catch (err) {
     console.warn('Invalid JSON, please fix and save again.');
-    return;
+    return null;
   }
   return json;
 };
 
-export const loadYaml = (filePath: string) => {
+export const parseYaml = (contents: string) => {
   let yml;
   try {
     // console.log(filecontents);
-    yml = YAML.parse(fs.readFileSync(filePath, 'utf8'));
+    yml = YAML.parse(contents);
   } catch (err) {
     console.warn(err, 'Invalid YAML, please fix and save again.');
-    return;
+    return null;
   }
   return yml;
 };
@@ -51,7 +51,13 @@ export const jsoncalc = (
   filePath: string,
   {reducer = 'sum', applyChanges = () => {}}: JsonCalcOptions
 ) => {
-  const hash = loadFile(filePath);
+  const contents = loadFile(filePath);
+  const hash = /\.json$/i.test(filePath)
+    ? parseJson(contents)
+    : parseYaml(contents);
+
+  if (hash === null) return;
+
   const snapshot = Object.assign({}, hash);
 
   const result = reducer
