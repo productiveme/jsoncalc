@@ -167,6 +167,7 @@ given(
   # sample of a comment
   e:
     e1: 1
+    # another comment
     e2: 0`
     );
   },
@@ -241,17 +242,46 @@ given(
 );
 
 given(
-  'jsoncalc initializes a yaml file with syntax errors',
+  'a YAML file with syntax errors',
   () => {
     (fs.readFileSync as any).mockReturnValue(
       `test:
-  a:1`
+  a: 1:
+  b: 1`
     );
   },
   (when, then) => {
     let called = false;
     when('the syntax error is detected', () => {
       jsoncalc('mock.yml', {
+        reducer: 'sum',
+        applyChanges() {
+          called = true;
+        },
+      });
+    });
+    then("the original file shouldn't be altered", () => {
+      expect(called).toBe(false);
+    });
+  }
+);
+
+given(
+  'a JSON file with syntax errors',
+  () => {
+    (fs.readFileSync as any).mockReturnValue(
+      `{
+  "test": {
+    "a": 1
+    "b": 1
+  }
+}`
+    );
+  },
+  (when, then) => {
+    let called = false;
+    when('the syntax error is detected', () => {
+      jsoncalc('mock.json', {
         reducer: 'sum',
         applyChanges() {
           called = true;

@@ -56,7 +56,7 @@ const sum = (hash: Object) =>
     reducer(a: number, b: number | [number]) {
       return Array.isArray(b) ? a + b[0] : a + b;
     },
-    clean: (res: number) => Number(res.toFixed(2)),
+    clean: (res: number) => Number((+res).toFixed(2)),
   });
 
 const count = (hash: Object) =>
