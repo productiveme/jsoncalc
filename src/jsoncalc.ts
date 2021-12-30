@@ -7,6 +7,7 @@ import {reducers} from './reducers';
 type ApplyChangesOptions = {
   filePath: string;
   result: string;
+  snapshot: string;
 };
 
 type ApplyChangesCallback = (opts: ApplyChangesOptions) => void;
@@ -17,11 +18,19 @@ type JsonCalcOptions = {
 };
 
 export const loadFile = (filePath: string) => {
-  if (/(\.json)|(\.yml)$/i.test(filePath)) {
+  if (isJson(filePath) || isYaml(filePath)) {
     return fs.readFileSync(filePath, 'utf8');
   }
   console.warn('Only JSON and YAML files are supported');
   return;
+};
+
+export const isJson = (filePath: string) => {
+  return /^\.json$/i.test(path.extname(filePath));
+};
+
+export const isYaml = (filePath: string) => {
+  return /^\.ya?ml$/i.test(path.extname(filePath));
 };
 
 export const parseJson = (contents: string) => {
@@ -36,13 +45,17 @@ export const parseJson = (contents: string) => {
     );
     return null;
   }
-  return json;
+  return {
+    obj: json,
+  };
 };
 
 export const parseYaml = (contents: string) => {
   let yml;
+  let doc;
   try {
     yml = YAML.parse(contents);
+    doc = YAML.parseDocument(contents);
   } catch (err) {
     console.warn(
       (err as Error).message,
@@ -51,30 +64,40 @@ export const parseYaml = (contents: string) => {
     );
     return null;
   }
-  return yml;
+  return {
+    doc,
+    obj: yml,
+  };
+};
+
+export const parse = (filePath: string, snapshot: string) => {
+  switch (true) {
+    case isJson(filePath):
+      return parseJson(snapshot);
+    case isYaml(filePath):
+      return parseYaml(snapshot);
+    default:
+      console.warn('File type not supported');
+      return null;
+  }
 };
 
 export const jsoncalc = (
   filePath: string,
   {reducer = 'sum', applyChanges = () => {}}: JsonCalcOptions
 ) => {
-  const contents = loadFile(filePath);
-  const hash = /\.json$/i.test(filePath)
-    ? parseJson(contents)
-    : parseYaml(contents);
+  const snapshot = loadFile(filePath);
+  const parsed = parse(filePath, snapshot);
 
-  if (hash === null) return;
-
-  const snapshot = Object.assign({}, hash);
+  if (parsed === null) return;
 
   const result = reducer
     .split(',')
     .reduce(
       (prev, cur: string) => reducers[cur as keyof typeof reducers](prev),
-      hash
+      parsed?.obj
     );
-  if (JSON.stringify(snapshot) === JSON.stringify(result)) return;
-  applyChanges({filePath, result});
+  applyChanges({filePath, result, snapshot});
 };
 
 export const watch = (pathToJson: string, {reducer = 'sum'}) => {
@@ -82,12 +105,16 @@ export const watch = (pathToJson: string, {reducer = 'sum'}) => {
   console.log(`Watching for changes in ${pathToJson} ...`);
   const opts = {
     reducer,
-    applyChanges: ({filePath, result}: ApplyChangesOptions) => {
-      if (/\.json$/i.test(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+    applyChanges: ({filePath, result, snapshot}: ApplyChangesOptions) => {
+      let output = snapshot;
+      if (isJson(filePath)) {
+        output = JSON.stringify(result, null, 2);
       }
-      if (/\.yml$/i.test(filePath)) {
-        fs.writeFileSync(filePath, YAML.stringify(result));
+      if (isYaml(filePath)) {
+        output = YAML.stringify(result);
+      }
+      if (output !== snapshot) {
+        fs.writeFileSync(filePath, output);
       }
     },
   };

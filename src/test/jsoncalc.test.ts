@@ -55,7 +55,7 @@ given(
           cb: [4, 5, 6],
         },
       });
-      const yml = parseYaml(contents);
+      const yml = parseYaml(contents)?.obj;
       then('an object should be parsed', () => {
         expect(yml).not.toBeNull();
         expect(yml).toHaveProperty('a');
@@ -151,6 +151,115 @@ given(
           );
         });
       });
+    });
+  }
+);
+
+given(
+  'jsoncalc initializes a yaml file',
+  () => {
+    (fs.readFileSync as any).mockReturnValue(
+      `test:
+  a: 1
+  b: 2
+  c: 3
+  d: 0
+  # sample of a comment
+  e:
+    e1: 1
+    e2: 0`
+    );
+  },
+  (when, then) => {
+    when('no reducer is specified', () => {
+      let calculated: Object;
+      jsoncalc('mock.yml', {
+        applyChanges({result}) {
+          calculated = result;
+        },
+      });
+      then('a sum calculation should be applied', () => {
+        expect(calculated).toHaveProperty('_total');
+        expect((calculated as any)._total).toBe(7);
+      });
+    });
+    const sample = {
+      sum: {
+        field: '_total',
+        result: 7,
+      },
+      count: {
+        field: '_count',
+        result: 6,
+      },
+      avg: {
+        field: '_avg',
+        result: 1.167,
+      },
+      yep: {
+        field: '_yep',
+        result: 4,
+      },
+      nope: {
+        field: '_nope',
+        result: 2,
+      },
+    };
+    when.each(Object.keys(sample))('%s reducer is specified', (_ignore, i) => {
+      let calculated: string;
+      jsoncalc('mock.yml', {
+        reducer: i,
+        applyChanges({result}) {
+          calculated = result;
+        },
+      });
+      then(`a ${i} calculation should be applied`, () => {
+        expect(calculated).toHaveProperty((sample as any)[i].field);
+        expect((calculated as any)[(sample as any)[i].field]).toBe(
+          (sample as any)[i].result
+        );
+      });
+    });
+    when(`${Object.keys(sample).join(',')} reducers are supplied`, () => {
+      let calculated: Object;
+      jsoncalc('mock.yml', {
+        reducer: Object.keys(sample).join(','),
+        applyChanges({result}) {
+          calculated = result;
+        },
+      });
+      then('each of the calculations should be applied', () => {
+        Object.keys(sample).forEach(i => {
+          expect(calculated).toHaveProperty((sample as any)[i].field);
+          expect((calculated as any)[(sample as any)[i].field]).toBe(
+            (sample as any)[i].result
+          );
+        });
+      });
+    });
+  }
+);
+
+given(
+  'jsoncalc initializes a yaml file with syntax errors',
+  () => {
+    (fs.readFileSync as any).mockReturnValue(
+      `test:
+  a:1`
+    );
+  },
+  (when, then) => {
+    let called = false;
+    when('the syntax error is detected', () => {
+      jsoncalc('mock.yml', {
+        reducer: 'sum',
+        applyChanges() {
+          called = true;
+        },
+      });
+    });
+    then("the original file shouldn't be altered", () => {
+      expect(called).toBe(false);
     });
   }
 );

@@ -1,8 +1,8 @@
-![Lines](https://img.shields.io/badge/Coverage-85.37%25-yellow.svg)
+![Lines](https://img.shields.io/badge/Coverage-80.85%25-yellow.svg)
 
 # jsoncalc
 
-A utility to watch a json file and run calculations recursively.
+A utility to watch a JSON or YAML file and run calculations recursively.
 
 ## Installation
 
@@ -17,6 +17,16 @@ npm install --global jsoncalc
 ```bash
 jsoncalc budget.json
 ```
+
+![](sample/jsoncalc-vscode.gif)
+
+OR
+
+```bash
+jsoncalc budget.yml
+```
+
+![](sample/jsoncalc-yaml.gif)
 
 #### `jsoncalc -h`
 
