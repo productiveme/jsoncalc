@@ -18,6 +18,9 @@ type JsonCalcOptions = {
 
 export const loadFile = (filePath: string) => {
   if (/(\.json)|(\.yml)$/i.test(filePath)) {
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, '');
+    }
     return fs.readFileSync(filePath, 'utf8');
   }
   console.warn('Only JSON and YAML files are supported');
