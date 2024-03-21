@@ -30,3 +30,12 @@ Options:
   -r, --reducer <reducer>  One or more (comma seperated) of the available reducer computations: [sum, count, avg, yep, nope]. (default: sum)
   -h, --help               display help for command
 ```
+
+### Handy Aliases
+
+```bash
+# vscode
+alias jsoncc='function _jsonc(){ (for i in $@; do :; done; code $i && jsoncalc $@) }; _jsonc'
+# nvim
+alias jsonc='function _jsonc(){ (for i in $@; do :; done; nvim -c "sp | resize 3 | term npx -y jsoncalc $@" $i ) }; _jsonc'`
+```
