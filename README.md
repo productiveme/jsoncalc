@@ -34,8 +34,8 @@ Options:
 ### Handy Aliases
 
 ```bash
-# vscode
-alias jsoncc='function _jsonc(){ (for i in $@; do :; done; code $i && jsoncalc $@) }; _jsonc'
-# nvim
-alias jsonc='function _jsonc(){ (for i in $@; do :; done; nvim -c "sp | resize 3 | term npx -y jsoncalc $@" $i ) }; _jsonc'`
+# Using the defined EDITOR environment variable, e.g. export EDITOR=nvim
+alias jsonc='function _jsonc(){ (for i in $@; do :; done; jsoncalc $@ & $EDITOR $i) }; _jsonc'
+# Autocompletion for zsh
+compdef '_files -g "*.(json|yaml|yml)"' _jsonc
 ```
