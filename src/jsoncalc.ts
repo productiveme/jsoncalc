@@ -17,7 +17,7 @@ type JsonCalcOptions = {
 };
 
 export const loadFile = (filePath: string) => {
-  if (/(\.json)|(\.yml)$/i.test(filePath)) {
+  if (/(\.json)|(\.ya?ml)$/i.test(filePath)) {
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, '');
     }
@@ -28,6 +28,8 @@ export const loadFile = (filePath: string) => {
 };
 
 export const parseJson = (contents: string) => {
+  if (!contents.trim()) return {};
+  
   let json;
   try {
     json = JSON.parse(contents);
@@ -43,11 +45,14 @@ export const parseJson = (contents: string) => {
 };
 
 export const parseYaml = (contents: string) => {
+  if (!contents.trim()) return {};
+
   let yml;
   try {
     yml = YAML.parse(contents);
   } catch (err) {
     console.warn(
+      'YAML Parse Error:',
       (err as Error).message,
       '\n',
       'Invalid YAML, please fix and save again.'
@@ -62,9 +67,17 @@ export const jsoncalc = (
   {reducer = 'sum', applyChanges = () => {}}: JsonCalcOptions
 ) => {
   const contents = loadFile(filePath);
-  const hash = /\.json$/i.test(filePath)
-    ? parseJson(contents)
-    : parseYaml(contents);
+  if (!contents) return;
+
+  let hash;
+  try {
+    hash = /\.json$/i.test(filePath)
+      ? parseJson(contents)
+      : parseYaml(contents);
+  } catch (err) {
+    console.error('Error parsing file:', err);
+    return;
+  }
 
   if (hash === null) return;
 
@@ -86,11 +99,17 @@ export const watch = (pathToJson: string, {reducer = 'sum'}) => {
   const opts = {
     reducer,
     applyChanges: ({filePath, result}: ApplyChangesOptions) => {
-      if (/\.json$/i.test(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
-      }
-      if (/\.yml$/i.test(filePath)) {
-        fs.writeFileSync(filePath, YAML.stringify(result));
+      try {
+        if (/\.json$/i.test(filePath)) {
+          fs.writeFileSync(filePath, JSON.stringify(result, null, 2));
+        }
+        if (/\.ya?ml$/i.test(filePath)) {
+          const doc = new YAML.Document();
+          doc.contents = result;
+          fs.writeFileSync(filePath, doc.toString());
+        }
+      } catch (err) {
+        console.error('Error writing file:', err);
       }
     },
   };
