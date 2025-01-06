@@ -13,7 +13,7 @@ program
   )
   .option(
     '-r, --reducer <reducer>',
-    `One or more (comma seperated) of the available reducer computations: [${Object.keys(
+    `One or more (comma separated) of the available reducer computations: [${Object.keys(
       reducers
     ).join(', ')}]. (default: sum)`
   )
