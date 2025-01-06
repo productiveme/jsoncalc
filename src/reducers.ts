@@ -3,6 +3,20 @@ const REDUCER_PREFIX = '_';
 const isObject = (x: unknown) =>
   typeof x === 'object' && x !== null && !Array.isArray(x);
 
+const isNumeric = (x: unknown): boolean => {
+  if (typeof x === 'number') return true;
+  if (typeof x === 'string') {
+    return !isNaN(parseFloat(x)) && isFinite(Number(x));
+  }
+  return false;
+};
+
+const toNumber = (x: unknown): number => {
+  if (typeof x === 'number') return x;
+  if (typeof x === 'string') return parseFloat(x);
+  return 0;
+};
+
 type ReduceOptions = {
   hash?: Object;
   reducerName: string;
@@ -10,9 +24,6 @@ type ReduceOptions = {
   initialValue: unknown;
   clean?: Function;
 };
-
-//TODO: A reducer should specify how to determine if a value is usable or not, and if its recursable or not
-//TODO: A reducer should be called differently when its the reduced value from a recursed child
 
 const reduce = ({
   hash = {},
@@ -26,9 +37,11 @@ const reduce = ({
       if (currentKey.startsWith(REDUCER_PREFIX)) return prevValue;
       const a = prevValue;
       let b: unknown = hash[currentKey as keyof typeof hash];
+      
       if (Array.isArray(b)) {
         b = b.reduce((prev, cur) => reducer(prev, cur), initialValue);
       }
+      
       if (isObject(b)) {
         (hash as any)[currentKey] = reduce({
           hash: hash[currentKey as keyof typeof hash],
@@ -37,9 +50,9 @@ const reduce = ({
           initialValue,
           clean,
         });
-        // using an array to indicate the results are from a child object
         b = [(hash as any)[currentKey][`${REDUCER_PREFIX}${reducerName}`]];
       }
+      
       return reducer(a, b, hash);
     },
     initialValue
@@ -53,8 +66,9 @@ const sum = (hash: Object) =>
     hash,
     reducerName: 'total',
     initialValue: 0,
-    reducer(a: number, b: number | [number]) {
-      return Array.isArray(b) ? a + b[0] : a + b;
+    reducer(a: number, b: unknown | [number]) {
+      if (Array.isArray(b)) return a + b[0];
+      return isNumeric(b) ? a + toNumber(b) : a;
     },
     clean: (res: number) => Number(res.toFixed(2)),
   });
@@ -64,8 +78,9 @@ const count = (hash: Object) =>
     hash,
     reducerName: 'count',
     initialValue: 0,
-    reducer(a: number, b: number | [number]) {
-      return Array.isArray(b) ? a + b[0] : a + 1;
+    reducer(a: number, b: unknown | [number]) {
+      if (Array.isArray(b)) return a + b[0];
+      return isNumeric(b) ? a + 1 : a;
     },
   });
 
@@ -88,7 +103,8 @@ const yep = (hash: Object) =>
     reducerName: 'yep',
     initialValue: 0,
     reducer(a: number, b: unknown | [number]) {
-      return Array.isArray(b) ? a + b[0] : a + (b ? 1 : 0);
+      if (Array.isArray(b)) return a + b[0];
+      return a + (b ? 1 : 0);
     },
     clean: (res: unknown) => res,
   });
@@ -99,15 +115,16 @@ const nope = (hash: Object) =>
     reducerName: 'nope',
     initialValue: 0,
     reducer(a: number, b: unknown | [number]) {
-      return Array.isArray(b) ? a + b[0] : a + (b ? 0 : 1);
+      if (Array.isArray(b)) return a + b[0];
+      return a + (b ? 0 : 1);
     },
     clean: (res: unknown) => res,
   });
 
 export const reducers = {
-  sum: sum,
-  count: count,
-  avg: avg,
-  yep: yep,
-  nope: nope,
+  sum,
+  count,
+  avg,
+  yep,
+  nope,
 };
